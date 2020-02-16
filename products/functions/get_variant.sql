@@ -1,51 +1,60 @@
-DROP function if exists products.get_variant(INT, TEXT);
-CREATE OR REPLACE FUNCTION products.get_variant(p_id INT, p_size TEXT)
-RETURNS TABLE (
-	variant_id INT,
-	product_id INT,
-	name TEXT,
-	description TEXT,
-	price_override INT,
-	ATTRIBUTES jsonb,
-	sizes TEXT[],
-	"size" TEXT,
-	images TEXT[]
-)
-AS $$
-	BEGIN
-	 	RETURN QUERY
-	 	SELECT 
-			pv.id AS variant_id,
-			p.id AS product_id,
-			pv."name",
-			p.description,
-			pv.price_override, 
-			pv."attributes",
-			array_agg(DISTINCT s.x || 'x' || s.y) AS sizes,
-			ss.x || 'x' || ss.y,
-			array_agg(DISTINCT p."name" || '/' || ss.x || 'x' || ss.y || '/' || vim.name) AS images
-		FROM
-			products.product_variant pv
-		INNER JOIN
-			products.product p ON pv.product_id = p.id
-		INNER JOIN
-			products.product_class pc ON pc.id = p.product_class_id
-		INNER JOIN
-			products.product_class_product_size pcps ON pcps.product_class_id = pc.id
-		INNER JOIN
-			products.product_variant_to_size pvts ON pvts.variant_id = pv.id
-		INNER JOIN
-			products."size" s ON s.id = pcps.product_size_id
-		INNER JOIN
-			products."size" ss ON ss.id = pvts.product_size_id
-		INNER JOIN 
-			products.variant_images vim ON vim.variant_id = pv.id
-		WHERE 
-			p.id = p_id
-		AND 
-			(length(p_size) = 0 OR ss.x || 'x' || ss.y = p_size)
-		GROUP BY
-			p.id, pv.id, ss.x, ss.y
-		ORDER BY p.id;
-	END;
-$$ LANGUAGE plpgsql;
+CREATE OR REPLACE FUNCTION products.get_variant(product_id_param INTEGER)
+	RETURNS TABLE(vid integer, pid integer, name text, description text, price_override integer, sizes text[], images text[], attributes json[])
+as
+--     TABLE(vid integer, pid integer, name text, description text, price_override integer, sizes text[], images text[], attr json)
+$$
+    DECLARE
+        attr json[];
+        sizes text[];
+BEGIN
+
+	SELECT array_agg(json_build_object('key', pa.display, 'value', acv.display))::json[] INTO attr
+	FROM
+		products.product p
+			INNER JOIN
+		products.product_to_attribute_value ptav ON ptav.product_id = p.id
+			INNER JOIN
+		products.attribute_value acv ON acv.id = ptav.attribute_value_id
+			INNER JOIN
+		products.attribute_key pa ON pa.id = acv.attribute_id
+	WHERE p.id = product_id_param;
+
+	SELECT array_agg(size) INTO sizes
+	FROM
+		products."size" s
+	INNER JOIN
+		products.class_to_size pcps ON pcps.size_id = s.id
+	INNER JOIN
+		products.class pc ON pc.id = pcps.class_id
+	INNER JOIN
+		products.product product ON product.class_id = pc.id AND product.id = product_id_param;
+
+
+    RETURN QUERY (SELECT
+	    variant.id AS vid,
+		product.id AS pid,
+	    variant."name",
+		product.description,
+	    variant.price_override,
+	    sizes,
+		array_agg(DISTINCT product."name" || '/' || ss.size || '/' || vim.name) AS images,
+	    attr as attributes
+	FROM
+		products.variant variant
+	INNER JOIN
+		products.product product ON variant.product_id = product.id AND product.id = product_id_param
+	INNER JOIN
+		products.variant_to_size pvts ON pvts.variant_id = variant.id AND pvts.is_default_size = true
+	INNER JOIN
+		products."size" ss ON ss.id = pvts.size_id
+	INNER JOIN
+		products.variant_images vim ON vim.variant_id = variant.id
+	GROUP BY
+		product.id, variant.id, ss.size
+	ORDER BY product.id);
+END;
+$$
+LANGUAGE 'plpgsql';
+
+alter function get_variant(integer) owner to lapkin;
+
