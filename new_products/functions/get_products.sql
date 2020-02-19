@@ -1,4 +1,4 @@
-create function get_products(subject_id_param integer)
+create function new_products.get_products(subject_id_param integer)
     returns TABLE(id integer, name text, description text, brand text, subject text, season text, kind text, photo_count integer, article text, price text)
     language plpgsql
 as
