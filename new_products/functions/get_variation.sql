@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION new_products.get_variant(variant_id_param INTEGER, size_option_id_param INTEGER)
+CREATE OR REPLACE FUNCTION new_products.get_variation(variation_id_param INTEGER, size_option_id_param INTEGER)
 	RETURNS TABLE (
 		vid integer,
 		pid integer,
@@ -33,7 +33,7 @@ BEGIN
 	INNER JOIN
 		new_products.attribute_value av ON pta.attribute_value_id = av.id
 	WHERE
-		v.id = variant_id_param;
+		v.id = variation_id_param;
 
 	SELECT array_agg(row_to_json(ssvso)) INTO sizes
 	FROM (
@@ -45,7 +45,7 @@ BEGIN
 			     INNER JOIN
 		     new_products.variation v ON so.variation_id = v.id
 	     WHERE
-			     v.id = variant_id_param
+			     v.id = variation_id_param
 	     GROUP BY so.id, s.size
 	     ORDER BY s.size
 	 ) as ssvso;
@@ -88,7 +88,7 @@ BEGIN
 		INNER JOIN
 			new_products.size_option_price sop ON so.id = sop.size_option_id
 		WHERE
-			v.id = variant_id_param
+			v.id = variation_id_param
 		AND
 			CASE
 				WHEN size_option_id_param = 0 THEN
@@ -117,7 +117,7 @@ BEGIN
 					            INNER JOIN
 								    new_products.size s ON so.size_id = s.id
 							    WHERE
-								    v.id = variant_id_param
+								    v.id = variation_id_param
 						        ORDER BY
 						            s.size
 							    LIMIT 1
