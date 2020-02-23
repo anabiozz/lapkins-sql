@@ -12,7 +12,7 @@ CREATE OR REPLACE FUNCTION new_products.get_variation(variation_id_param INTEGER
 		attributes json[],
 		price text,
 		sizes json[],
-		size integer
+		size_option_id integer
     )
 as
 $$
@@ -40,12 +40,12 @@ BEGIN
 	     SELECT json_build_object('key', so.id, 'value', s.size) as size_object
 	     FROM
 		     new_products.size s
-			     INNER JOIN
+	     INNER JOIN
 		     new_products.size_option so ON s.id = so.size_id
-			     INNER JOIN
+	     INNER JOIN
 		     new_products.variation v ON so.variation_id = v.id
 	     WHERE
-			     v.id = variation_id_param
+		     v.id = variation_id_param
 	     GROUP BY so.id, s.size
 	     ORDER BY s.size
 	 ) as ssvso;
