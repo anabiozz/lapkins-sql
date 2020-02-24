@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS new_products.subject (
+CREATE TABLE IF NOT EXISTS products_v2.subject (
 	id SERIAL PRIMARY KEY,
 	name TEXT NOT NULL,
 	is_deleted BIT,

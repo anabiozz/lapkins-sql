@@ -35,13 +35,13 @@ BEGIN
 			cart_temp.quantity,
 			cart_temp.size_option_id
 		FROM cart_temp
-		INNER JOIN new_products.variation v ON v.id = cart_temp.variation_id
-		INNER JOIN new_products.product p ON v.product_id = p.id
-		INNER JOIN new_products.name n ON p.name_id = n.id
-		INNER JOIN new_products.brand b on p.brand_id = b.id
-		INNER JOIN new_products.size_option so ON v.id = so.variation_id AND so.id = cart_temp.size_option_id
-		INNER JOIN new_products.size s ON so.size_id = s.id
-		INNER JOIN new_products.size_option_price sop ON so.id = sop.size_option_id
+		INNER JOIN products_v2.variation v ON v.id = cart_temp.variation_id
+		INNER JOIN products_v2.product p ON v.product_id = p.id
+		INNER JOIN products_v2.name n ON p.name_id = n.id
+		INNER JOIN products_v2.brand b on p.brand_id = b.id
+		INNER JOIN products_v2.size_option so ON v.id = so.variation_id AND so.id = cart_temp.size_option_id
+		INNER JOIN products_v2.size s ON so.size_id = s.id
+		INNER JOIN products_v2.size_option_price sop ON so.id = sop.size_option_id
 		WHERE v.id = cart_temp.variation_id
 		AND so.id = cart_temp.size_option_id
 		GROUP BY
@@ -53,4 +53,3 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM cart.load_cart('4144889c-1ba3-4fb0-bc23-e3cd5fe6e263')

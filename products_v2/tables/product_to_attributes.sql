@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS new_products.product_to_attributes (
+CREATE TABLE IF NOT EXISTS products_v2.product_to_attributes (
 	product_id INT NOT NULL,
 	attribute_key_id INT NOT NULL,
 	attribute_value_id INT,

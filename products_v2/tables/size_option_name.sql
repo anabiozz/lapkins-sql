@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS new_products.size_option_name (
+CREATE TABLE IF NOT EXISTS products_v2.size_option_name (
 	id SERIAL PRIMARY KEY,
 	size TEXT NOT NULL,
 	created_at timestamp with time zone DEFAULT current_timestamp,

@@ -1,6 +1,6 @@
-CREATE TABLE IF NOT EXISTS new_products.variation (
+CREATE TABLE IF NOT EXISTS products_v2.variation (
 	id SERIAL PRIMARY KEY,
-	product_id INT NOT NULL REFERENCES new_products.product(id),
+	product_id INT NOT NULL REFERENCES products_v2.product(id),
 	article TEXT NOT NULL,
 	photo_count INT NOT NULL,
 	is_deleted BIT,
