@@ -1,4 +1,4 @@
-DROP TRIGGER IF EXISTS "add_sku_tr" ON products.product_variant;
+DROP TRIGGER IF EXISTS "add_sku_tr" ON products_v2.variation;
 
 CREATE OR REPLACE FUNCTION products.add_sku()
 RETURNS TRIGGER AS $$
