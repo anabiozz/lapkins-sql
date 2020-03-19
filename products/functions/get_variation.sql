@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION products_v2.get_variation(variation_id_param INTEGER, size_option_id_param INTEGER)
+CREATE OR REPLACE FUNCTION products.get_variation(variation_id_param INTEGER, size_option_id_param INTEGER)
 	RETURNS TABLE (
 		vid integer,
 		pid integer,
@@ -23,15 +23,15 @@ BEGIN
 
 	SELECT array_agg(json_build_object('key', ak.name, 'value', av.name))::json[] INTO attr
 	FROM
-		products_v2.variation v
+        products.variation v
 	INNER JOIN
-		products_v2.product p ON v.product_id = p.id
+        products.product p ON v.product_id = p.id
 	INNER JOIN
-		products_v2.product_to_attributes pta ON p.id = pta.product_id
+        products.product_to_attributes pta ON p.id = pta.product_id
 	INNER JOIN
-		products_v2.attribute_key ak ON pta.attribute_key_id = ak.id
+        products.attribute_key ak ON pta.attribute_key_id = ak.id
 	INNER JOIN
-		products_v2.attribute_value av ON pta.attribute_value_id = av.id
+        products.attribute_value av ON pta.attribute_value_id = av.id
 	WHERE
 		v.id = variation_id_param;
 
@@ -39,11 +39,11 @@ BEGIN
 	FROM (
 	     SELECT json_build_object('key', so.id, 'value', s.size) as size_object
 	     FROM
-		     products_v2.size s
+             products.size s
 	     INNER JOIN
-		     products_v2.size_option so ON s.id = so.size_id
+             products.size_option so ON s.id = so.size_id
 	     INNER JOIN
-		     products_v2.variation v ON so.variation_id = v.id
+             products.variation v ON so.variation_id = v.id
 	     WHERE
 		     v.id = variation_id_param
 	     GROUP BY so.id, s.size
@@ -66,27 +66,27 @@ BEGIN
 			sizes,
 			so.id
 		FROM
-			products_v2.variation v
+            products.variation v
 		INNER JOIN
-			products_v2.product p ON v.product_id = p.id
+            products.product p ON v.product_id = p.id
 		INNER JOIN
-			products_v2.name n ON p.name_id = n.id
+            products.name n ON p.name_id = n.id
 		INNER JOIN
-			products_v2.description d ON p.description_id = d.id
+            products.description d ON p.description_id = d.id
 		INNER JOIN
-			products_v2.brand b on p.brand_id = b.id
+            products.brand b on p.brand_id = b.id
 		INNER JOIN
-			products_v2.subject su on p.subject_id = su.id
+            products.subject su on p.subject_id = su.id
 		INNER JOIN
-			products_v2.season se on p.season_id = se.id
+            products.season se on p.season_id = se.id
 		INNER JOIN
-			products_v2.kind k on p.kind_id = k.id
+            products.kind k on p.kind_id = k.id
 		INNER JOIN
-			products_v2.size_option so ON v.id = so.variation_id
+            products.size_option so ON v.id = so.variation_id
 		INNER JOIN
-			products_v2.size s ON so.size_id = s.id
+            products.size s ON so.size_id = s.id
 		INNER JOIN
-			products_v2.size_option_price sop ON so.id = sop.size_option_id
+            products.size_option_price sop ON so.id = sop.size_option_id
 		WHERE
 			v.id = variation_id_param
 		AND
@@ -97,25 +97,25 @@ BEGIN
                             (
 							    SELECT so.id, s.size
 							    FROM
-								    products_v2.variation v
+                                    products.variation v
 							    INNER JOIN
-								    products_v2.product p ON v.product_id = p.id
+                                    products.product p ON v.product_id = p.id
 							    INNER JOIN
-								    products_v2.name n ON p.name_id = n.id
+                                    products.name n ON p.name_id = n.id
 							    INNER JOIN
-								    products_v2.description d ON p.description_id = d.id
+                                    products.description d ON p.description_id = d.id
 							    INNER JOIN
-								    products_v2.brand b on p.brand_id = b.id
+                                    products.brand b on p.brand_id = b.id
 							    INNER JOIN
-								    products_v2.subject su on p.subject_id = su.id
+                                    products.subject su on p.subject_id = su.id
 							    INNER JOIN
-								    products_v2.season se on p.season_id = se.id
+                                    products.season se on p.season_id = se.id
 							    INNER JOIN
-								    products_v2.kind k on p.kind_id = k.id
+                                    products.kind k on p.kind_id = k.id
 							    INNER JOIN
-								    products_v2.size_option so ON v.id = so.variation_id
+                                    products.size_option so ON v.id = so.variation_id
 					            INNER JOIN
-								    products_v2.size s ON so.size_id = s.id
+                                    products.size s ON so.size_id = s.id
 							    WHERE
 								    v.id = variation_id_param
 						        ORDER BY

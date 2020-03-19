@@ -1,37 +1,21 @@
-DROP FUNCTION IF EXISTS products.get_categories(INT);
-CREATE OR REPLACE FUNCTION products.get_categories(category_parent_id int)
-RETURNS TABLE (
-	categories json
-)
+CREATE OR REPLACE FUNCTION products.get_categories(category_url text)
+    RETURNS TABLE (
+        id int,
+        name text,
+        description text,
+        url text
+	)
 AS $$
-	BEGIN
-	 	RETURN QUERY 
-		SELECT array_to_json(array_agg(a.category::json))
-		FROM
-			(
-				SELECT
-					json_build_object('category_name', t.display, 'sub_categories', json_agg(t.categories)) AS category
-				FROM (
-					SELECT
-						pcl.display AS display,
-						json_build_object('display', c.display, 'url', c."name") AS categories
-					FROM
-						products.category c
-					INNER JOIN
-						products.product_categories pc ON pc.category_id = c.id
-					INNER JOIN
-						products.product p ON p.id = pc.product_id
-					INNER JOIN
-						products.product_class pcl ON pcl.id = p.product_class_id
-					WHERE
-						c.parent_id = category_parent_id
-					AND
-						c.hidden = FALSE
-					GROUP BY 
-						pcl.display, c.display, c."name"
-				) t
-				GROUP BY
-					t.display
-			) a;
-	END;
+BEGIN
+    RETURN QUERY
+	    WITH RECURSIVE nodes(id, name, description, url) AS (
+		    SELECT s1.id, s1.name, s1.description, s1.url
+		    FROM products.category s1 WHERE parent_id = ( SELECT c.id FROM products.category c
+		                                                     WHERE c.url = category_url)
+		    UNION
+		    SELECT s2.id, s2.name, s2.description, s2.url
+		    FROM products.category s2, nodes s1 WHERE s2.parent_id = s1.id
+	    )
+	    SELECT * FROM nodes;
+END;
 $$ LANGUAGE plpgsql;
